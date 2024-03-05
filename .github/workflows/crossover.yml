@@ -69,8 +69,8 @@ jobs:
           ORDER_NUMBER: ${{ github.event.inputs.order_number }}
         run: |
 
-          IFS=',' read -ra ORDERS <<< "$ORDER_NUMBER"
-          
+          IFS=, read -ra ORDERS <<< "$ORDER_NUMBER"
+
           for ORDER_NO in "${ORDERS[@]}"; do
             mysql -h $TEST_DB_HOST -u $TEST_DB_USER -p$TEST_DB_PASSWORD omnidb -e "UPDATE Investment SET process_day= 'daily', status_id =11 WHERE order_no In ('$ORDER_NO');"
           done
