@@ -1,0 +1,71 @@
+name: TEST Backup MySQL Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'short name'
+        type: string
+        required: true
+      order_no:
+        description: 'the order number'
+        type: string
+        required: true
+
+jobs:
+
+  Send-Email-Devops:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Print Triggered Workflow Link
+        run: |
+          WORKFLOW_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "WORKFLOW_LINK=$WORKFLOW_LINK" >> $GITHUB_ENV
+          echo "your $WORKFLOW_LINK"
+
+      - name: Notify slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: pullreminders/slack-action@master
+        with:
+          args: '{\"channel\":\"C068H70GLVA\",\"text\":\"Hi Team, the TEST Script has been requested to run by ${{ github.event.inputs.name }} ${{ env.WORKFLOW_LINK }}\"}'
+          
+      # - name: Send Triggered Notification to DevOps
+      #   env:
+      #     SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      #     RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }} 
+      #     #devops email
+      #     RECEIVER_EMAIL_TWO: ${{ secrets.RECEIVER_EMAIL_TWO }} 
+      #     #devops email
+      #     REQUESTED_USER: ${{ github.event.inputs.name }}
+      #     PASSWORD_EMAIL: ${{ secrets.PASSWORD_EMAIL }}
+      #     ENV: "SIT"
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install pipenv 
+      #     pipenv install
+      #     pwd
+      #     pipenv run python src/send-email.py
+          
+  TEST-crossover:
+    runs-on: ubuntu-latest
+    environment:
+      name: try
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create TESTDB Database Dump
+        env:
+          TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
+          TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }} 
+          TEST_DB_HOST: ${{ secrets.TEST_DB_HOST }} 
+          TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
+          ORDER_NO: ${{ github.event.inputs.order_no }}
+        run: |
+          mysqldump -h $TEST_DB_HOST -u $TEST_DB_USER -p$TEST_DB_PASSWORD -e "UPDATE Investment SET process_day= "daily", status_id =11 WHERE order_no In ("$ORDER_NO");"
