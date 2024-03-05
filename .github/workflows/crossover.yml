@@ -68,4 +68,4 @@ jobs:
           TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
           ORDER_NO: ${{ github.event.inputs.order_no }}
         run: |
-          mysql -h $TEST_DB_HOST -u $TEST_DB_USER -p$TEST_DB_PASSWORD omnidb -e "UPDATE Investment SET process_day= "daily", status_id =11 WHERE order_no In ("$ORDER_NO");"
+          mysql -h $TEST_DB_HOST -u $TEST_DB_USER -p$TEST_DB_PASSWORD omnidb -e "UPDATE Investment SET process_day= 'daily', status_id =11 WHERE order_no In ('$ORDER_NO');"
