@@ -63,6 +63,7 @@ jobs:
       - name: Invoke the lambda to execute the script
         env:
           API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
+          ORDER_NUMBER: ${{ github.event.inputs.order_number }}
         run: |
           
           echo $ORDER_NUMBER
