@@ -70,7 +70,7 @@ jobs:
 
           echo "ORDERS: ${ORDERS[@]}"
 
-          json_payload=$(printf '{"order_nos": [%s]}' "$(printf '"%s"\n' "${ORDERS[@]}" | tr -d '\n' | sed 's/"//g')")
+          json_payload=$(jq -n --argjson orders "$(printf '%s\n' "${ORDERS[@]}" | jq -R . | jq -s .)" '{"order_nos":$orders}')
 
           echo "JSON Payload: $json_payload"
           
