@@ -65,16 +65,16 @@ jobs:
           API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
           ORDER_NUMBER: ${{ github.event.inputs.order_number }}
         run: |
-          
-          echo $ORDER_NUMBER
-
+        
           IFS=',' read -ra ORDERS <<< "$ORDER_NUMBER"
-          
+
           echo "ORDERS: ${ORDERS[@]}"
+
+          json_payload=$(printf '{"order_nos": [%s]}' $(printf '"%s"\n' "${ORDERS[@]}" | jq -sR . | jq -cs .))
+
+          echo "JSON Payload: $json_payload"
           
-          for ORDER_NO in "${ORDERS[@]}"; do
-            curl -X POST \
-             -H "Content-Type: application/json" \
-             -d '{"order_nos": ["$ORDER_NO"]}' \
-             $API_ENDPOINT
-          done
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "$json_payload" \
+            "$API_ENDPOINT"
