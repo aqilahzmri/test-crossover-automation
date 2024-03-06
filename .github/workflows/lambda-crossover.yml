@@ -53,20 +53,16 @@ jobs:
           
   TEST-crossover:
     runs-on: ubuntu-latest
-    environment:
-      name: try
+    # environment:
+    #   name: try
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run SQL script
+      - name: Invoke the lambda to execute the script
         env:
-          TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
-          TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }} 
-          TEST_DB_HOST: ${{ secrets.TEST_DB_HOST }} 
-          TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
-          ORDER_NUMBER: ${{ github.event.inputs.order_number }}
+          API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
         run: |
           
           echo $ORDER_NUMBER
@@ -74,5 +70,8 @@ jobs:
           IFS=',' read -ra ORDERS <<< "$ORDER_NUMBER"
           
           for ORDER_NO in "${ORDERS[@]}"; do
-            mysql -h $TEST_DB_HOST -u $TEST_DB_USER -p$TEST_DB_PASSWORD omnidb -e "UPDATE Investment SET process_day= 'daily', status_id =11 WHERE order_no In ('$ORDER_NO');"
+            curl -X POST \
+             -H "Content-Type: application/json" \
+             -d '{"order_nos": ["$ORDER_NO"]}' \
+             $API_ENDPOINT
           done
