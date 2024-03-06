@@ -70,6 +70,8 @@ jobs:
 
           IFS=',' read -ra ORDERS <<< "$ORDER_NUMBER"
           
+          echo "ORDERS: ${ORDERS[@]}"
+          
           for ORDER_NO in "${ORDERS[@]}"; do
             curl -X POST \
              -H "Content-Type: application/json" \
